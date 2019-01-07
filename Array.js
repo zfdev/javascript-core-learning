@@ -514,7 +514,7 @@
 
     //###Description
     //用来判断一个数组是否包含一个指定的值，如果包含侧返回true,否则返回false
-    //
+    //includes传入的想要查找是否含有的值，every传入的是回调函数，some传入的也是回调函数，every类似于逻辑运算的&&，而some类似于逻辑运算的||
 
     //###参数
     //searchElement 需要查找的元素值
