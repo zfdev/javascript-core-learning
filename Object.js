@@ -225,3 +225,154 @@ const bInstance = new ES5ClassB('a', 'b');
 bInstance.doSomething();
 
 //##prototype和Object.getPrototypeOf
+//我们注意到javascript的function函数有一个特殊的属性prototype，该特殊属性可以与Javascript的new操作符一起使用。实现创建基于构造函数的实例，所以构造函数的prototpye对象，所有的实例都会共享，因为所有实例的[[prototype]]都指向构造函数的prototype
+    // const A = function(){};
+    // const a1 = new A();
+    // const a2 = new A();
+    // //内存中查找路径
+    // a1.doSomething ---> Object.getPrototypeOf(a1).doSomething ---> A.prototype.doSomething;
+    // a2.doSomething ---> Object.getPrototypeOf(a2).doSomething ---> A.prototype.doSomething;
+    // //执行时
+    // a1.doSomething() ---> A.prototype.doSomething.call(a1);
+    // a2.doSomething() ---> A.prototype.doSomething.call(a2);
+
+//##prototype用于类，Object.getPrototypeOf()用于实例
+
+//##Javascript new本质
+    const FunctionClass = function(){}
+    //当运行下面的代码时
+    const fInstance = new FunctionClass();
+    //首先创建一个空对象 
+    // const emptyObject = new Object();
+    //将空对象的[[prototype]]指向构造函数的prototype原型
+    // emptyObject.__proto__ = FunctionClass.prototype; (Object.getPrototypeOf(emptyObject) = FunctionClass.prototype) 
+    //修改构造函数的作用域为新建的空对象并执行
+    //FunctionClass.call(emptyObject);
+
+//##Javascript 属性访问符.本质是递归引用
+    //object.property
+    //它会首先检查object本身是否含有property属性，如果没有，
+    //它会继续查找Object.getPrototypeOf(object).property(就是__proto__的指向)
+    //它会继续查找Object.getPrototypeOf(Object.getPrototypeOf(object)).property 如此继续直到顶点Object.prototype.[[prototpye]]的null返回undefined然后抛出错误
+
+
+//#对象模型的细节
+//Javasript是一种基于原型而不是基于类的面对对象语言。
+
+//--//##基于类vs基于原型的语言
+    //基于类的语言中的类，可使特定的对象集合特征化，类是抽象的，而不是其所描述的对象集合中任何特定的个体，一个实例是一个类的实例化，也就是其中一名成员。
+    //基于原型的语言并不存在这种区别，它只有对象，基于原型的语言具有所谓原型对象的概念，原型对象可以作为一个模板，新对象可以从中获得原始的属性，任何对象都可以指定其自身的属性，既可以是创建时也可以在运行时创建。而且任何一个对象都可以作为另一个对象的原型，从而允许后者共享前者的属性。
+
+    //###定义类
+    //基于类的语言，需要专门的类定义符来定义类，在定义类时，允许定义特殊的方法，称为构造器。来创建该类的实例，在构造器方法中，可以指定实例的属性的初始值以及其他一些操作。你可以通过将new操作符和构造方法来创建类的实例
+    //Javascript中只需要定义构造函数来创建具有一组特定初始属性和属性值的对象。任何Javascript函数都可以用作构造器。也可以使用new操作符和构造函数来创建一个新对象。
+
+    //###子类和继承
+    //基于类的语言是通过对类的定义中构建类的层级结构，在定义类中，可以指定新的类是一个现存的类的子类，子类可以继承父类的全部属性。并可以添加新的属性或者修改继承的属性。
+    //例如: 假设Employee类只有name和dept属性，而manager是Employee的子类，并添加了reports属性。这时，Manager类的实例，将具有所有三个属性name,dept,reports
+    //Javascript通过将构造器函数与原型对象相互关联的方式来实现继承。
+    //例如: 创建一样的Employee -- Manager实例，却需要不同的方式来实现，
+    //首先需要定义Employee构造函数，在构造函数内部定义name,dept属性，接下来，定义Manager构造函数，在该构造函数内调用Employee构造函数，并定义reports属性，最后将一个获Employee.prototype的新对象赋予给Manager构造函数，作为Manager构造函数的原型，之后当你创建新的Manager对象实例时，该实例会从Employee对象继承name,dept属性
+
+    //###添加和移除属性
+    //基于类的语言中，通常在编译时创建类，然后再编译时或者运行时对类的实例进行实例化。一旦定义了类，无法对类的属性进行更改。
+    //在javascript中允许运行时添加或者移除任何对象的属性。如果您为一个对象中添加一个属性。而这个对象又作为其他对象的原型，则该对象作为原型的所有其他对象也将获得该属性
+
+    //###总结
+    //####基于类的(Java)
+    //1.类和实例是不同的事物。
+    //2.通过类定义来定义类，通过构造器方法来实例化
+    //3.通过new操作符来创建单个对象实例
+    //4.通过类定义来定义现存类的子类，从而构建对象的层级结构
+    //5.遵循类链继承属性
+    //6.类定义指定类的所有实例所有属性，无法再运行时动态添加属性
+
+    //####基于原型的(Javascript)
+    //1.所有对象都是Object的实例
+    //2.通过构造器函数来定义和创建一组对象
+    //3.通过new操作符来创建单个对象实例
+    //4.指定一个对象作为原型，并且与构造函数一起构建对象的层级结构
+    //5.遵循原型链继承属性
+    //6.构造器函数或者原型指定初始属性集合，允许动态地向单个对象或者整个对象集中添加移除属性
+
+
+//--//##创建层级结构
+    //基础类Employee有一个name属性和dept属性
+    const Employee = function(name, dept){
+        this.name = name || '';
+        this.dept = dept || 'general';
+    };
+    //Manager继承于Employee类，自有一个属性reports
+    const Manager = function(reports){
+        Employee.call(this);
+        this.reports = reports || [];
+    }
+    Manager.prototype = Object.create(Employee.prototype);
+    //WorkerBee继承于Employee类，自有一个projects属性
+    const WorkerBee = function(projs){
+        Employee.call(this);
+        this.projects = projs || [];
+    }
+    WorkerBee.prototype = Object.create(Employee.prototype);
+    //SalesPerson继承于WorkerBee类，重写了dept属性为sales，自有一个属性为quota
+    const SalesPerson = function(){
+        WorkerBee.call(this);
+        this.dept = 'sales';
+        this.quota = 100;
+    }
+    SalesPerson.prototype = Object.create(WorkerBee.prototype);
+    //Engineer继承于WorderBee类，重写了dept属性为engineering，自有一个machine属性
+    const Engineer = function(mach){
+        WorkerBee.call(this);
+        this.dept = 'engineering';
+        this.machine = mach || '';
+    }
+    Engineer.prototype = Object.create(WorkerBee.prototype);
+
+    const mark = new WorkerBee();
+
+//--//##对象的属性
+    //执行new操作符时发生的事情，以WorkerBee作为例子，它会创建一个空对象，并将其作为关键字this的值传递给WorkerBee的构造函数，构造函数显式地设置projects值，然后隐式地将其内部的[[prototype]]属性设置为WorkerBee.prototype的值，一旦这些属性设置完成，Javascript返回这些新创建的对象，然后赋值语句会将变量mark的值指向该对象。 
+
+    //###继承属性
+    console.log(mark.hasOwnProperty('name'));
+    console.log(Object.getPrototypeOf(mark));
+    mark.projects.push('navigator');
+    console.log(mark);
+    mark.name = 'mark';
+    console.log(mark);
+
+    //###添加属性
+    //在Javascript中，可以在运行时为任何对象添加属性，而不必受限于构造器函数提供的属性。
+    //在类WorkerBee的实例对象mark上添加属性bonus
+    mark.bonus = 3000;
+    //向构造函数的原型对象中添加新的属性，那么该属性将添加到这个原型中继承属性的所有对象中
+    
+
+    const jim = new Employee('Jim', 'Marketing');
+    console.log(jim);
+    const sally = new Manager();
+    console.log(sally);
+    
+    console.log(mark);
+    console.log(mark.specialty);
+    const fred = new SalesPerson();
+    console.log(fred);
+    const jane = new Engineer();
+    console.log(jane);   
+
+//--//##更灵活的构造器
+    //在创建新实例时为其制定属性值。当没有指定属性值时会赋值为默认初始值。
+    //this.name = name || '';
+
+    const belau = new Engineer('belau');
+    //new操作符创建了一个空对象
+    //将空对象的的[[prototype]]属性指向Engineer.prototype
+    //将这个对象的this传递给Engineer构造函数
+    //
+    Employee.prototype.specialty = 'none';
+    console.log(belau);
+    console.log(belau.specialty);
+
+//--//##属性的继承
+    
