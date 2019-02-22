@@ -18,25 +18,777 @@
     //可以为所有Object类型的对象添加属性
 
 //##构造函数Method
-//--//Object.assign()
+//--//Object.assign(target, ...sources)
+    //###Description
+    //方法用于将所有可枚举属性的值从一个或多个源对象复制到目标对象，它将返回目标对象。
+    //如果目标对象中属性具有相同的键，则目标对象中的同名属性将被源中的属性覆盖。
+    //String类型和Symbol类型的属性都会被copy
 
-    //参数
+    //Object.assign不会跳过那些值为null或undefined的源对象
 
-    //返回值
+    //###参数
+        //target 目标对象
+        //sources 源对象
 
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+    //复制一个对象
+    const handler = {
+        apply: function(target, thisArg, argumentsList){
+            target('')
+            target('\x1b[36m%s\x1b[0m', '--------------------------------------------------');
+            target(argumentsList[0]);
+            return target('');
+        }
+    }    
+    const debug = new Proxy(console.log, handler);
+
+    const assignObject = {
+        a: 1
+    }
+    const copyAssignObject = Object.assign({}, assignObject);
+    debug(copyAssignObject);
+
+    
+    //深拷贝问题, assign是浅copy要想实现深copy请使用其他方法
+    const assignDeepCopy = {
+        a:0, 
+        b:{
+            c: 0
+        }
+    }
+    const assignDeepCopy1 = Object.assign({}, assignDeepCopy);
+    debug(assignDeepCopy);
+    debug(assignDeepCopy1);
+    assignDeepCopy1.a = 1;
+    assignDeepCopy.a = 2;
+    debug(assignDeepCopy);
+    debug(assignDeepCopy1); 
+    assignDeepCopy.b.c = 1;   
+    debug(assignDeepCopy);
+    debug(assignDeepCopy1); 
+    const realDeepClone = JSON.parse(JSON.stringify(assignDeepCopy)); //deep clone
+    debug(realDeepClone);
+    realDeepClone.b.c = 4;
+    debug(assignDeepCopy);
+    debug(realDeepClone);
+
+    //合并对象2,3到对象1
+    const assignMergeObject1 = { a: 1};
+    const assignMergeObject2 = { b: 2};
+    const assignMergeObject3 = { c: 3};
+    const mergeThreeObject = Object.assign(assignMergeObject1, assignMergeObject2, assignMergeObject3);
+    console.log('mergeThreeObject', mergeThreeObject);
+    console.log('assignMergeObject1', assignMergeObject1);
+    console.log(mergeThreeObject === assignMergeObject3); //不相等，证明内存中的指针不相同，实现了真正的copy
+
+    //合并具有相同属性的对象，如果具有相同的key，那么按照source排列的顺序依次覆盖属性
+    const assignSamePropertyObj = {
+        a:1,
+        b:1,
+        c:1
+    }
+    const assignSamePropertyObj1 = {
+        b:2,
+        c:2
+    }
+    const assignSamePropertyObj2 = {
+        c:3
+    }
+    const samePropertyMergeResult = Object.assign({}, assignSamePropertyObj, assignSamePropertyObj1, assignSamePropertyObj2);
+    debug(samePropertyMergeResult);
+
+    //Copy symbol类型的属性
+    const symbolProperyObj = {
+        a:1
+    }
+    const symbolProperyObj1 = {
+        [Symbol('foo')]: 2
+    }
+    const symbolPropertyResult = Object.assign({}, symbolProperyObj, symbolProperyObj1);
+    console.log(symbolPropertyResult);
+
+    //继承属性和不可枚举属性都是不能copy的
+    const protoPropertyAndEnumableProperty = Object.create(
+        {
+            foo: 1 // foo是继承属性，所以不能copy
+        },
+        {
+            bar:{
+                value: 2 //enumerable: false 默认值是false, 所以无法copy
+            },
+            baz:{
+                value: 3,
+                enumerable: true
+            }
+        }
+    )
+    const copyProtoProperty = Object.assign({}, protoPropertyAndEnumableProperty);
+    debug(copyProtoProperty);
+
+    //原始类型会被包装为对象,可枚举的对象才会遍历并复制
+    const assignOriginalProperty = 'abc';
+    const assignOriginalProperty1 = true;
+    const assignOriginalProperty2 = 10;
+    const assignOriginalProperty3 = Symbol('foo');
+    const assignOriginalResult = Object.assign({}, assignOriginalProperty, assignOriginalProperty2, assignOriginalProperty3, null, undefined);
+    debug(assignOriginalResult);
+
+    //异常会打断后续copy任务, 导致后续的对象不会被复制
+    const exceptionBreakCopy = Object.defineProperty({}, 'foo', {
+        value: 1,
+        writable: false
+    })
+    const exceptionBreakCopyResult = Object.assign(exceptionBreakCopy, {
+        bar: 2
+    },
+    {
+        foo2: 3,
+        //foo: 3,
+        foo3: 3
+    },
+    {
+        baz: 4
+    });
+    debug(exceptionBreakCopyResult);
+
+    //copy访问器
+    
+//--//Object.create()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+//--//Object.defineProperties()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+//--//Object.defineProperty()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+//--//Object.entries()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+//--//Object.freeze()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+//--//Object.fromEntries()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.getOwnPropertyDescriptor()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.getOwnPropertyDescriptors()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.getOwnPropertyNames()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.getOwnPropertySymbols()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+ //--//Object.getPrototypeOf()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+ //--//Object.entries()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+ //--//Object.is()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.isExtensible()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.is()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.isFrozen()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+ //--//Object.isSealed()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.keys()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+ //--//Object.preventExtensions()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.seal()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+
+ //--//Object.setPrototypeOf()
+    //###Description
+    //
+
+    //###参数
+        //target 目标对象
+
+    //###返回值 Object
+    //目标对象
+
+    //###Example
+
+ 
+ //--//Object.values()
+    //###Description
+    //
+
+    //###参数
+        //
+
+    //###返回值 Object
+    //
+
+    //###Example
+
+     
 //#常用方法
 
 //#Object实例和Object原型对象
 //Javascrip中所有的对象都来自Object,所有对象从Object.prototype继承方法和属性，尽管他们可能被覆盖，例如，其他构造函数的原型将覆盖constructor属性，并提供自己的toString()方法，Object原型对象的更改将传播到所有对象，除非受到这些更改的属性和方法将沿原型链进一步覆盖。
 
 
-//##Object原型对象属性
+//##Object原型对象属性，对象实例属性
+//牢记Object.prototype上只有constructor和__proto__两个属性，这两个重要的属性实现了整个javascript的原型链继承
 //--//Object.prototype.constructor
+    //###Description
+    //返回创建实例对象的Object构造函数的引用。 次属性的值是对函数本身的引用，而不是一个包含函数名称的字符串。
+    //记住constructor属性是prototype对象上得属性，它指向对象的构造函数，深入理解这个概念之后，就可以理解任意一个对象或者构造函数的实例是如何创建的，通过哪个构造函数创建的，
+    //通过测试我们发现实例本身上并没有constructor这个属性，都是通过__proto__指向的实例构造函数的prototype对象上找到的constructor，也就是通过原型链向上查找而找到的。
+    //下面的cArray的例子也证实了我们的想法，cArray.hasOwnProperty('constructor')返回值是false 证明这个不是它自有的属性
+    //###Example
+    //Test a constructor of instance.
+    const cObject = {};
+    debug(cObject.constructor === Object);
+    const cOWithConstructorFun = new Object();
+    debug(cOWithConstructorFun.constructor === Object);
+    const cArray = [];
+    debug(cArray.constructor === Object);
+    debug(cArray.constructor === Array);
+    console.log('-------------------------------------------------------');
+    debug('Does array instance have its own property constructor ?');
+    debug(cArray.hasOwnProperty('constructor'));
+    console.log('-------------------------------------------------------');
+    const cAWithConstructorFun = new Array();
+    debug(cAWithConstructorFun.constructor === Object);
+    debug(cAWithConstructorFun.constructor === Array);
+    const cNumber = new Number(3);
+    debug(cNumber.constructor === Object);
+    debug(cNumber.constructor === Number);
+
+    //Print the construtor of a object
+    const constructorFun = new Function('name', 'this.name = name');
+    const constructorFunInstance = new constructorFun('Jason');
+    debug(constructorFunInstance);
+    debug(constructorFunInstance.constructor.toString());
+
+    //Change the constructor of the object
+    //对于原始类型来说，比如1,true,'test'，构造函数属性只读,因为他们创建的是只读原生构造函数(native constructors)
+    function Type(){};
+    const constructorType = [
+        new Array(),
+        [],
+        new Boolean(),
+        true,
+        new Date(),
+        new Error(),
+        new Function(),
+        function(){},
+        Math,
+        new Number(),
+        1,
+        new Object(),
+        {},
+        new RegExp(),
+        /(?:)/,
+        new String(),
+        'test'
+    ];
+    for(let i=0; i< constructorType.length; i++){
+        constructorType[i].constructor = Type;
+        constructorType[i] = [constructorType[i].constructor, constructorType[i] instanceof Type, constructorType[i].toString()]
+    }
+    debug(constructorType.join('\n'));
+
+    //Change the constructor of a function
+    //大多数情况下，constructor属性用于定义一个构造函数，并使用new和继承原型链__proto__进一步调用它
+    const ConstructorParent = function(){}
+    ConstructorParent.msg = 'Im parent! Child dont call me!';
+    ConstructorParent.prototype.doSomething = function(){
+        console.log(this.constructor.msg);
+    }
+    ConstructorParent.prototype.parentMethod = function parentMethod(){};
+    const ConstructorChild = function(){}
+    ConstructorChild.msg = 'Child call me please.';
+    ConstructorChild.prototype.doSomething = function(){
+        console.log(this.constructor.msg);
+    }
+    ConstructorChild.prototype = Object.create(ConstructorParent.prototype);//这里使用了Object.create()方法，这个方法本质上和new差不多，基于参数指定的prototype创建对象
+    debug(ConstructorChild.prototype.constructor);
+    new ConstructorChild().doSomething();
+    //由于使用Object.create实现的继承，假如没有下面那句，会导致一些错误问题，比如构造函数的有些属性需要调用时，就会错误的指向父类的constructor上
+    //ConstructorChild.prototype.constructor = ConstructorChild;
+
 
 //--//Object.prototype.__proto__
+    //###Description
+    //Object.prototype的__proto__属性是一个访问器属性，一个getter函数和一个setter函数，暴露了通过他们访问的对象的内部[[prototype]]
+    //现在推荐使用Object.getPrototypeOf/Reflect.getPrototypeOf来获取对象的__proto__
+    //使用Object.setPrototypeOf/Reflect.setPrototypeOf来设置对象的__proto__，不过设置对象的__proto__是一个缓慢的操作，如果注重性能，应该避免这样的操作
+    //__proto__属性也可以使用Object.create()来创建，在创建对象时传入对象__proto__指向的prototype。
+    //Javascript中所有的值都是对象的实例，所以所有的对象都有__proto__属性，指向它的构造函数的原型对象prototype
+    //通过__proto__,Javascript实现了原型链的继承，理解原型链的继承方式，对于书写复杂的javascript程序非常有帮助
+    //我们通过__proto__原型链调用本来不属于对象本身的方法，也可以通过Object.create传入prototype实现对象的继承的
 
-//##Object原型对象方法
-//--//Object.prototype.hasOwnProperty()
+    //###Example
+    //我们来打印出常见几种数据类型的__proto__
+    const protoObj = new Object();
+    const protoString = new String('abc');
+    const protoArray = new Array();
+    const protoFun = new Function(); 
+    const protoBoolean = new Boolean();
+    const protoError = new Error();
+    const protoRegExp = new RegExp();
+    const protoNumber = new Number();
+    const protoDate = new Date();
+    const protoPromise = new Promise(function(){});
+    const protoProxy = new Proxy({}, {apply: function(){}});
+    const protoSym = Symbol('abc'); //Symbol并不是一个完整的构造函数，所以它不支持语法 new Symbol()，Symbol()函数会返回symbol类型的值，一个symbol值能作为对象属性的标识符，symbol的值都是唯一的，它也是一种基本的数据类型，Symbol.for方法可以返回指定key的symbol，否则就返回创建新的symbol
+    const protoMap = new Map();
+    const protoSet = new Set();
+    debug(Object.getPrototypeOf(protoObj));
+    debug(Object.getPrototypeOf(protoString));
+    debug(Object.getPrototypeOf(protoArray));
+    debug(Object.getPrototypeOf(protoFun));
+    debug(Object.getPrototypeOf(protoBoolean));
+    debug(Object.getPrototypeOf(protoError));
+    debug(Object.getPrototypeOf(protoRegExp));
+    debug(Object.getPrototypeOf(protoNumber));
+    debug(Object.getPrototypeOf(protoDate));
+    debug(Object.getPrototypeOf(protoPromise));
+    debug(Object.getPrototypeOf(protoProxy));
+    debug(Object.getPrototypeOf(protoSym));
+    debug(Object.getPrototypeOf(protoMap));
+    debug(Object.getPrototypeOf(protoSet));
+    //通过__proto__实现继承对象的方法，只是举例，并不可以用于生产环境
+    const ProtoShape = function(){};
+    const protoTestObj = {
+        method(){
+            console.log('------------------------------');
+            console.log('Consolen log from protoTestObj');
+            console.log('------------------------------');
+        }
+    }
+    const protoCircle = new ProtoShape();
+    Object.setPrototypeOf(protoCircle, protoTestObj); //设置protoCircle的__proto__指向protoTestObj.prototype
+    protoCircle.method(); //protoCircle通过原型链调用的method方法
+
+//##Object原型对象方法,对象实例方法
+//!!!尤其注意不要与Object自身上的静态方法混淆，这里的方法都是实例上的方法，也就是说javascript里所有对象都有的方法
+//--//Object.prototype.hasOwnProperty(prop)
+    //###Description
+    //object.hasOwnProperty(prop)方法会返回一个布尔值，指示对象自身属性中是否具有指定的属性
+    //!!!所有继承了Object的对象都会继承到hasOwnProperty方法，这个方法可以用来检测一个对象是否含有特定的自身属性，尤其注意它与in运算符不同的地方，它会忽略掉从原型链上继承到的属性。
+
+    //###参数
+        //prop 要检测的属性名的字符串或者Symbol
+
+    //###返回值 Boolean
+    //用来判断某个对象是否含有指定很属性的boolean值
+
+    //###Example
+    //使用hasOwnProperty方法判断属性是否存在
+    const hasOwnObject = new Object();
+    hasOwnObject.prop = 'exists';
+    const hasOwnChangeO = function(){
+        hasOwnObject.newProp = hasOwnObject.prop;
+        delete hasOwnObject.prop;
+    }
+    console.log('-------------------------------');
+    console.log('Object has own property prop? ', hasOwnObject.hasOwnProperty('prop').toString());
+    hasOwnChangeO();
+    console.log('Object has own property prop? ', hasOwnObject.hasOwnProperty('prop'));
+    console.log('-------------------------------');
+
+    //自身属性与继承属性
+    //这个例子将展示hasOwnProperty对待自身属性和继承属性的区别
+    console.log('-------------------------------');
+    console.log('Object has own property newProp? ', hasOwnObject.hasOwnProperty('newProp').toString());
+    console.log('Object has own property toString? ', hasOwnObject.hasOwnProperty('toString').toString());
+    console.log('Object has own property hasOwnProperty? ', hasOwnObject.hasOwnProperty('hasOwnProperty').toString());
+    console.log('-------------------------------');
+
+    //遍历一个对象的所有自身属性
+    //这个例子演示了如何在遍历一个对象的所有属性时忽略继承属性，这里的for...in循环只会遍历可枚举属性，hasOwnProperty并没有严格限制于可枚举属性。
+    for(let name in hasOwnObject){
+        if(hasOwnObject.hasOwnProperty(name)){
+            console.log('Object hasOwnObject has own property: ' , name);
+        }else{
+            console.log('hasOwnObject proto property: ', name);
+        }
+    }
+    console.log('-------------------------------');
+
+    //当对象上含有同名方法hasOwnProperty时的处理方法，使用外部的hasOwnProperty以便于获得正确结果
+    console.log('Object hasOwnObject has own property: ' , ({}).hasOwnProperty.call(hasOwnObject, 'newProp')); //({})等于(new Obejct()),当它调用hasOwnProperty时，会从__proto__向上查找hasOwnProperty方法，等同于Object.prototype.hasOwnProperty
+    console.log('Object hasOwnObject has own property: ' , Object.prototype.hasOwnProperty.call(hasOwnObject, 'newProp')); //利用call函数改变方法的作用域为当前对象，并且传入参数propName实现调用
+
+
+//--//Object.prototype.isPrototypeOf(object)
+    //###Description
+    //Object.prototype.isPrototypeOf(object)方法用于测试一个对象是否存在于另一个对象的原型链上
+    //!!!注意区别这个方法与instanceof的区别，这个方法是在Object.prototype上的，与instanceof针对构造函数直接检查的方式不一样
+
+    //###参数
+        //object 在该对象的原型链上搜寻
+
+    //###返回值 Boolean
+    //表示调用对象是否在另一个对象的原型链上
+
+    //###Example
+    //继承的对象创建实例的判断
+    const Foo = function(){};
+    const Bar = function(){};
+    const Baz = function(){};
+    Bar.prototype = Object.create(Foo.prototype);
+    Baz.prototype = Object.create(Bar.prototype);
+    console.log('-------------------------------');
+    const barInstance = new Baz();
+    console.log(Baz.prototype.isPrototypeOf(barInstance));
+    console.log(Bar.prototype.isPrototypeOf(barInstance));
+    console.log(Foo.prototype.isPrototypeOf(barInstance));
+    console.log(Object.prototype.isPrototypeOf(barInstance));    
+    console.log('-------------------------------');
+    
+    
+//--//Object.prototype.propertyIsEnumerable(prop)
+    //###Description
+    //propertyIsEnumerable方法返回一个布尔值，表示指定属性是否可以枚举。
+    //每个对象都有一个propertyIsEnumberable方法，此方法可以确定指定对象中指定属性是否可以被for...in循环枚举，但是通过原型链继承的属性除外。
+
+    //###参数
+        //prop 要测试的属性名
+
+    //###返回值 Boolean
+    //用来表示指定的属性名是否可枚举的Boolean
+
+    //###Example
+    const enumerableObj = {};
+    const enumerableArr = [];
+    enumerableObj.a = 'is enumerable';
+    enumerableArr[0] = 'is enumerable';
+    console.log('-------------------------------');
+    console.log(enumerableObj.propertyIsEnumerable('a'));
+    console.log(enumerableArr.propertyIsEnumerable(0));
+    console.log('-------------------------------');
+
+    //用户自定义对象和引擎内置对象
+    console.log(enumerableArr.propertyIsEnumerable('length')); //不可枚举对象
+    console.log(Math.propertyIsEnumerable('random')); 
+    console.log('-------------------------------');
+
+    //自身属性和继承属性
+    const enumerableParent = function(){
+        this.property = 'parent property'
+    }
+    enumerableParent.prototype.parentMethod = function(){
+
+    }
+    const enumerableChild = function(){
+        this.method = function(){
+            return 'child method'
+        }
+    }
+    enumerableChild.prototype = new enumerableParent();
+    enumerableChild.prototype.constructor = enumerableChild;
+
+    const enumerableChildInstance = new enumerableChild();
+    enumerableChildInstance.instanceProperty = 'instance property';
+
+    for(let property in enumerableChildInstance){
+        if(enumerableChildInstance.propertyIsEnumerable(property)){
+            console.log('enumerable property:', property);
+            console.log('property is own property:', enumerableChildInstance.hasOwnProperty(property));
+
+        }else{
+            console.log('property from prototype:', property); //虽然原型链上继承的属性可以被遍历出来，但是propertyIsEnumerable方法会返回false
+            console.log('property is own property:', enumerableChildInstance.hasOwnProperty(property));
+
+        }
+    }
+    console.log('-------------------------------');
+
+//--//Object.prototype.toLocaleString()
+    //###Description
+    //
+
+    //###参数
+        //
+
+    //###返回值 Object
+    //
+
+    //###Example
+
+
+//--//Object.prototype.toString()
+    //###Description
+    //
+
+    //###参数
+        //
+
+    //###返回值 Object
+    //
+
+    //###Example
+
+    
+//--//Object.prototype.valueOf()
+    //###Description
+    //
+
+    //###参数
+        //
+
+    //###返回值 Object
+    //
+
+    //###Example
+
+    
+//--//Object.prototype.seal()
+    //###Description
+    //
+
+    //###参数
+        //
+
+    //###返回值 Object
+    //
+
+    //###Example
+
+    
+//--//Object.prototype.setPrototypeOf()
+    //###Description
+    //
+
+    //###参数
+        //
+
+    //###返回值 Object
+    //
+
+    //###Example
+
+    
+//--//Object.prototype.values()
+    //###Description
+    //
+
+    //###参数
+        //
+
+    //###返回值 Object
+    //
+
+    //###Example
 
 
 //#理解Javascript的继承与原型链
@@ -328,6 +1080,7 @@ bInstance.doSomething();
         this.machine = mach || '';
     }
     Engineer.prototype = Object.create(WorkerBee.prototype);
+    Employee.prototype.specialty = 'none';
 
     const mark = new WorkerBee();
 
@@ -337,6 +1090,8 @@ bInstance.doSomething();
     //###继承属性
     console.log(mark.hasOwnProperty('name'));
     console.log(Object.getPrototypeOf(mark));
+    const util = require('util');
+    console.log(util.inspect(Object.getPrototypeOf(mark), { showHidden: false,depth: null }));
     mark.projects.push('navigator');
     console.log(mark);
     mark.name = 'mark';
@@ -370,9 +1125,50 @@ bInstance.doSomething();
     //将空对象的的[[prototype]]属性指向Engineer.prototype
     //将这个对象的this传递给Engineer构造函数
     //
-    Employee.prototype.specialty = 'none';
+    
     console.log(belau);
+    console.log(belau.name);
     console.log(belau.specialty);
+    
 
 //--//##属性的继承
+    //###本地值和继承值
+    //Javascript访问一个对象的属性，执行的步骤
+    //1.检查对象本地值是否存在，如果存在返回该值，如果是与原型链上有同名属性值，就产生了属性屏蔽现象
+    //2.如果本地值不存在，检查原型链，通过__proto__属性查找
+    //3.沿着__proto__向上查找，如果原型链中的某个对象具有指定的属性的值，则返回该值
+    //4.如果这样的属性不存在，则该对象没有该属性
+
+    //如果想创建一个后代对象继承的共享属性，在构造函数的prototype上定义该属性
+    //如果想创建一个后代独立的不共享的属性，在构造函数内部通过this创建该属性
+
+    //每个对象都有一个__proto__属性是在构建对象时设置的(除了Object)。
+    //每个函数都有一个prototype属性
+    //通过原型继承，对象与其他对象形成关系
+    //通过比较对象的__proto__的函数的prototype可以检测对象的继承关系。
+    console.log(Object.getPrototypeOf(belau) === Engineer.prototype);
+    console.log(Object.getPrototypeOf(Object.getPrototypeOf(belau)) === WorkerBee.prototype);
+    console.log(Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(belau))) === Employee.prototype);
+    console.log(Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(belau)))) === Object.prototype);
+    console.log(Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(belau))))) === null);
+
+    //自定义instanceOf函数
+    const jInstanceOf = function(object, constructor){
+        while(object !== null){
+            if(Object.getPrototypeOf(object) === constructor.prototype){
+                return true;
+            }else{
+                object = Object.getPrototypeOf(object);
+            }
+        }
+        return false;
+    }
+    console.log(jInstanceOf(belau, Employee));
+    console.log(jInstanceOf(belau, ES5ClassA));
+
+    //没有多重继承
+    //在Java语言中存在多重继承，对象可以从无关的多个父对象中继承属性和属性值，但是Javascript不支持多重继承。
+    //Javascript的属性值继承是在运行时通过检索对象的原型链来实现的。对象只有一个原型与之关联，所以Javascript无法动态地从多个原型链中继承
+    //不过我们可以在构造器函数中调用多个其他构造函数造成多重继承的假象。
     
+
